@@ -25,7 +25,7 @@ const params = new URLSearchParams(window.location.search);
 if (params.get('advisor') === 'true') {
     const password = prompt("Please enter the advisor password:");
     // ⚠️ CHANGE THIS PASSWORD ⚠️
-    if (password === "YourSecretPassword123") {
+    if (password === "Eichenfield") {
         advisorControls.style.display = 'block';
     } else {
         alert("Incorrect password. Advisor controls are hidden.");
