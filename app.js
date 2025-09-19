@@ -15,13 +15,16 @@ const queueRef = database.ref('queue');
 
 // --- Get HTML Elements ---
 const studentNameInput = document.getElementById('studentName');
-const studentEmailInput = document.getElementById('studentEmail');
 const joinQueueBtn = document.getElementById('joinQueueBtn');
 const callNextBtn = document.getElementById('callNextBtn');
 const queueDisplay = document.getElementById('queue-display');
 const advisorControls = document.querySelector('.advisor-controls');
+const advisorStatus = document.getElementById('advisor-status');
+const loader = document.getElementById('loader');
 
-// --- NEW: Request Notification Permission on Load ---
+let isFirstLoad = true;
+
+// --- Request Notification Permission on Load ---
 document.addEventListener('DOMContentLoaded', () => {
     if (Notification.permission !== "granted") {
         Notification.requestPermission();
@@ -31,7 +34,9 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- Advisor Password Protection ---
 advisorControls.style.display = 'none';
 const params = new URLSearchParams(window.location.search);
-if (params.get('advisor') === 'true') {
+const isAdvisor = params.get('advisor') === 'true';
+
+if (isAdvisor) {
     const password = prompt("Please enter the advisor password:");
     // ⚠️ CHANGE THIS PASSWORD ⚠️
     if (password === "eichenfield") {
@@ -44,23 +49,30 @@ if (params.get('advisor') === 'true') {
 // --- Event Listeners ---
 joinQueueBtn.addEventListener('click', () => {
     const name = studentNameInput.value.trim();
-    const email = studentEmailInput.value.trim();
-    if (name && email) {
-        // NEW: Save user's name to sessionStorage to identify them later
-        sessionStorage.setItem('currentUserName', name);
+    if (name) {
+        // --- NEW: Button Feedback ---
+        const btnText = joinQueueBtn.querySelector('.btn-text');
+        const btnLoader = joinQueueBtn.querySelector('.btn-loader');
+        
+        btnText.style.display = 'none';
+        btnLoader.style.display = 'inline-block';
+        joinQueueBtn.disabled = true;
 
+        sessionStorage.setItem('currentUserName', name);
         queueRef.push({
             name: name,
-            email: email,
             status: 'waiting',
             timestamp: firebase.database.ServerValue.TIMESTAMP
+        }).then(() => {
+            studentNameInput.value = '';
+            // Visual confirmation after joining
+            joinQueueBtn.style.background = 'var(--success-color)';
+            btnLoader.style.display = 'none';
+            btnText.innerHTML = '<i class="fa-solid fa-check"></i> You are in the queue!';
+            btnText.style.display = 'inline';
         });
-        studentNameInput.value = '';
-        studentEmailInput.value = '';
-        joinQueueBtn.disabled = true; // Prevent double clicks
-        joinQueueBtn.textContent = 'You are in the queue!';
     } else {
-        alert('Please enter both your name and email.');
+        alert('Please enter your name.');
     }
 });
 
@@ -77,6 +89,11 @@ callNextBtn.addEventListener('click', () => {
 
 // --- Main Real-time Update Function ---
 queueRef.orderByChild('timestamp').on('value', (snapshot) => {
+    if (isFirstLoad) {
+        loader.style.display = 'none';
+        isFirstLoad = false;
+    }
+    
     queueDisplay.innerHTML = '';
     const currentUserName = sessionStorage.getItem('currentUserName');
     let userPosition = 0;
@@ -85,11 +102,8 @@ queueRef.orderByChild('timestamp').on('value', (snapshot) => {
 
     if (snapshot.exists()) {
         const queueData = snapshot.val();
-        
         Object.keys(queueData).forEach(key => {
             const student = queueData[key];
-            
-            // Logic to find user's position
             if (student.status === 'waiting') {
                 waitingCount++;
                 if (student.name === currentUserName && !positionFound) {
@@ -97,47 +111,59 @@ queueRef.orderByChild('timestamp').on('value', (snapshot) => {
                     positionFound = true;
                 }
             }
-            
-            // --- NEW: Check if the current user is being called ---
             if (student.name === currentUserName && student.status === 'called' && !document.hasFocus()) {
-                showNotification('It\'s your turn!', 'The advisor is ready for you. Please join the Zoom meeting.');
+                showNotification('It\'s your turn!', 'The advisor is ready for you.');
                 playNotificationSound();
             }
 
-            // Create and display the queue item
             const itemDiv = document.createElement('div');
             itemDiv.classList.add('queue-item');
-            if (student.status === 'called') {
-                itemDiv.classList.add('active-call');
-            }
-            itemDiv.innerHTML = `<span>${student.name}</span><span class="status status-${student.status}">${student.status}</span>`;
+            if (student.status === 'called') itemDiv.classList.add('active-call');
+
+            itemDiv.innerHTML = `
+                <div class="queue-item-info">
+                    <span>${student.name}</span>
+                    <span class="timestamp">Joined: ${formatTimestamp(student.timestamp)}</span>
+                </div>
+                <span class="status status-${student.status}">${student.status}</span>`;
+            
             queueDisplay.appendChild(itemDiv);
         });
     } else {
-        queueDisplay.innerHTML = '<p>The queue is currently empty.</p>';
+        queueDisplay.innerHTML = '<p style="text-align: center; color: var(--text-light);">The queue is currently empty.</p>';
     }
 
-    // --- NEW: Update Page Title ---
-    if (userPosition > 0) {
-        document.title = `(#${userPosition}) - Meeting Queue`;
-    } else if (positionFound) { // User is next or being called
-        document.title = 'Your Turn! - Meeting Queue';
-    } else {
-        document.title = 'Meeting Queue';
+    // --- Update Advisor Status and Page Title ---
+    if (isAdvisor) {
+        if (waitingCount > 0) {
+            advisorStatus.textContent = `${waitingCount} student(s) are waiting.`;
+            document.title = `(${waitingCount}) Waiting - Queue`;
+        } else {
+            advisorStatus.textContent = `The queue is empty.`;
+            document.title = 'Meeting Queue';
+        }
+    } else { // It's a student
+        if (userPosition > 0) {
+            document.title = `(#${userPosition}) - Meeting Queue`;
+        } else if (positionFound) {
+            document.title = 'Your Turn! - Meeting Queue';
+        } else {
+            document.title = 'Meeting Queue';
+        }
     }
 });
 
-// --- NEW: Helper Functions for Interactivity ---
-
-// Function to show a browser notification
+// --- Helper Functions ---
 function showNotification(title, body) {
     if (Notification.permission === "granted") {
         new Notification(title, { body: body });
     }
 }
-
-// Function to play a sound
 function playNotificationSound() {
     const audio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3');
     audio.play();
+}
+function formatTimestamp(timestamp) {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
