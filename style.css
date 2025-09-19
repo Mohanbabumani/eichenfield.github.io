@@ -90,3 +90,15 @@ button:hover {
 .advisor-controls button:hover {
     background-color: #218838;
 }
+
+
+.active-call {
+    background-color: #e9f7ef;
+    animation: flash-green 1.5s infinite;
+}
+
+@keyframes flash-green {
+    0% { background-color: #e9f7ef; }
+    50% { background-color: #c8e6c9; }
+    100% { background-color: #e9f7ef; }
+}
