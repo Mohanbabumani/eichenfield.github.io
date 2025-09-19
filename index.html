@@ -4,56 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meeting Queue</title>
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <header>
-        <div class="container">
-            <h1><i class="fa-solid fa-users"></i> Meeting Queue</h1>
-        </div>
-    </header>
+    <div class="background-shapes"></div>
 
     <main class="container">
-        <div class="card shadow">
+        <header>
+            <h1><i class="fa-solid fa-users"></i> Meeting Queue</h1>
+        </header>
+
+        <div class="card">
             <h2><i class="fa-solid fa-user-plus"></i> Join the Queue</h2>
             <div class="input-group">
                 <i class="fa-solid fa-user"></i>
                 <input type="text" id="studentName" placeholder="Enter Your Name" required>
             </div>
-            <button id="joinQueueBtn">
-                <span class="btn-text">Join Queue</span>
-                <span class="btn-loader" style="display: none;"></span>
-            </button>
+            <button id="joinQueueBtn"><i class="fa-solid fa-arrow-right-to-bracket"></i> Join Queue</button>
         </div>
         
-        <div class="card shadow">
+        <div class="card">
             <h2><i class="fa-solid fa-list-ol"></i> Live Queue</h2>
             <div id="loader" class="loader"></div>
             <div id="queue-display"></div>
         </div>
         
-        <div class="card shadow advisor-controls">
+        <div class="card advisor-controls">
             <h2><i class="fa-solid fa-user-tie"></i> Advisor Controls</h2>
             <div id="advisor-status">Checking queue...</div>
-            <button id="callNextBtn"><i class="fa-solid fa-forward-step"></i> Call Next Student</button>
+            <button id="callNextBtn"><i class="fa-solid fa-forward-step"></i> Call Next & Clear</button>
         </div>
     </main>
-
-    <footer>
-        <p>Queue Application | Tucson, AZ</p>
-    </footer>
-
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
