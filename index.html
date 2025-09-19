@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Advisor Meeting Queue</title>
     <style>
-        /* --- Basic Styling --- */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: #f4f4f9;
@@ -23,8 +22,6 @@
             text-align: center;
             color: #444;
         }
-
-        /* --- Card Layout --- */
         .card {
             background: white;
             padding: 25px;
@@ -32,8 +29,6 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-
-        /* --- Form Elements --- */
         input[type="text"], input[type="email"] {
             width: calc(100% - 24px);
             padding: 12px;
@@ -57,8 +52,6 @@
         button:hover {
             background-color: #0056b3;
         }
-
-        /* --- Queue Display --- */
         #queue-display {
             min-height: 50px;
         }
@@ -85,8 +78,6 @@
             color: #28a745;
             background-color: #e9f7ef;
         }
-
-        /* --- Advisor Controls --- */
         .advisor-controls {
             background-color: #fffbe6;
             border: 1px solid #ffeeba;
@@ -100,47 +91,37 @@
     </style>
 </head>
 <body>
-
     <main>
         <h1>Meeting Queue 🧑‍🏫</h1>
-
         <div class="card">
             <h2>Join the Queue</h2>
             <input type="text" id="studentName" placeholder="Your Name" required>
             <input type="email" id="studentEmail" placeholder="Your Email (for notification)" required>
             <button id="joinQueueBtn">Join Queue</button>
         </div>
-
         <div class="card">
             <h2>Live Queue</h2>
-            <div id="queue-display">
-                <p>Loading queue...</p>
-            </div>
+            <div id="queue-display"><p>Loading queue...</p></div>
         </div>
-        
         <div class="card advisor-controls">
             <h2>Advisor Controls</h2>
             <button id="callNextBtn">Call Next Student</button>
         </div>
     </main>
-
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
     <script>
-        // --- 1. CONFIGURE FIREBASE ---
-        // ⚠️ PASTE YOUR FIREBASE CONFIGURATION OBJECT HERE
+        // ⚠️ PASTE YOUR FIREBASE CONFIGURATION HERE ⚠️
         const firebaseConfig = {
-          apiKey: "YOUR_API_KEY",
-          authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-          databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
-          projectId: "YOUR_PROJECT_ID",
-          storageBucket: "YOUR_PROJECT_ID.appspot.com",
-          messagingSenderId: "YOUR_SENDER_ID",
-          appId: "YOUR_APP_ID"
+          apiKey: "AIzaSyBkKZHomt-1eKhATVLjkgOrjLGmw-EpwWI",
+          authDomain: "advisor-meeting.firebaseapp.com",
+          databaseURL: "https://advisor-meeting-default-rtdb.firebaseio.com",
+          projectId: "advisor-meeting",
+          storageBucket: "advisor-meeting.firebasestorage.app",
+          messagingSenderId: "198832931796",
+          appId: "1:198832931796:web:ae205e1eddf4a4c2764c41"
         };
 
-        // --- 2. INITIALIZE FIREBASE & GET REFERENCES ---
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const queueRef = database.ref('queue');
@@ -152,21 +133,18 @@
         const queueDisplay = document.getElementById('queue-display');
         const advisorControls = document.querySelector('.advisor-controls');
 
-        // --- 3. ADVISOR PASSWORD PROTECTION ---
-        advisorControls.style.display = 'none'; // Hide controls by default
+        advisorControls.style.display = 'none';
         const params = new URLSearchParams(window.location.search);
         if (params.get('advisor') === 'true') {
             const password = prompt("Please enter the advisor password:");
-            // ⚠️ CHANGE THIS PASSWORD
-            if (password === "YourSecretPassword123") {
+            // ⚠️ CHANGE THIS PASSWORD ⚠️
+            if (password === "Eichenfield") {
                 advisorControls.style.display = 'block';
             } else {
                 alert("Incorrect password. Advisor controls are hidden.");
             }
         }
 
-        // --- 4. EVENT LISTENERS ---
-        // Event listener for the "Join Queue" button
         joinQueueBtn.addEventListener('click', () => {
             const name = studentNameInput.value.trim();
             const email = studentEmailInput.value.trim();
@@ -184,7 +162,6 @@
             }
         });
 
-        // Event listener for the "Call Next" button
         callNextBtn.addEventListener('click', () => {
             queueRef.orderByChild('status').equalTo('waiting').limitToFirst(1).once('value', snapshot => {
                 if (snapshot.exists()) {
@@ -196,25 +173,19 @@
             });
         });
 
-        // --- 5. REAL-TIME QUEUE DISPLAY ---
-        // This function listens for any changes in the 'queue' data
         queueRef.orderByChild('timestamp').on('value', (snapshot) => {
-            queueDisplay.innerHTML = ''; // Clear the current display
+            queueDisplay.innerHTML = '';
             if (snapshot.exists()) {
                 const queueData = snapshot.val();
                 Object.keys(queueData).forEach(key => {
                     const student = queueData[key];
-                    
                     const itemDiv = document.createElement('div');
                     itemDiv.classList.add('queue-item');
-
                     const nameSpan = document.createElement('span');
                     nameSpan.textContent = student.name;
-                    
                     const statusSpan = document.createElement('span');
                     statusSpan.textContent = student.status;
                     statusSpan.classList.add('status', `status-${student.status}`);
-
                     itemDiv.appendChild(nameSpan);
                     itemDiv.appendChild(statusSpan);
                     queueDisplay.appendChild(itemDiv);
