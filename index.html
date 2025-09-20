@@ -11,14 +11,11 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <div class="background-shapes"></div>
-
     <main class="container">
         <header>
             <h1><i class="fa-solid fa-users"></i> Meeting Queue</h1>
         </header>
-
         <div class="card">
             <h2><i class="fa-solid fa-user-plus"></i> Join the Queue</h2>
             <div class="input-group">
@@ -27,23 +24,23 @@
             </div>
             <button id="joinQueueBtn"><i class="fa-solid fa-arrow-right-to-bracket"></i> Join Queue</button>
         </div>
-        
         <div class="card">
             <h2><i class="fa-solid fa-list-ol"></i> Live Queue</h2>
             <div id="loader" class="loader"></div>
             <div id="queue-display"></div>
         </div>
-        
         <div class="card advisor-controls">
             <h2><i class="fa-solid fa-user-tie"></i> Advisor Controls</h2>
             <div id="advisor-status">Checking queue...</div>
-            <button id="callNextBtn"><i class="fa-solid fa-forward-step"></i> Call Next & Clear</button>
+            <div class="advisor-buttons">
+                <button id="callNextBtn"><i class="fa-solid fa-forward-step"></i> Call Next Student</button>
+                <button id="clearFinishedBtn" class="btn-danger"><i class="fa-solid fa-broom"></i> Clear Finished</button>
+            </div>
         </div>
     </main>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
