@@ -9,6 +9,7 @@ const firebaseConfig = {
   appId: "1:198832931796:web:ae205e1eddf4a4c2764c41"
 };
 
+// --- Initialize Firebase ---
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 const queueRef = database.ref('queue');
@@ -24,7 +25,7 @@ const advisorStatus = document.getElementById('advisor-status');
 const loader = document.getElementById('loader');
 
 let isAdvisor = false;
-let previousQueueState = {}; // To track changes for notifications
+let previousQueueState = {}; // Used to detect changes for notifications
 
 // --- Advisor Password & Initial Setup ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -33,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const password = prompt("Please enter the advisor password:");
         if (password === "eichenfield") { // ⚠️ CHANGE THIS PASSWORD ⚠️
             isAdvisor = true;
-            advisorControls.style.display = 'block';
+            advisorControls.style.display = 'block'; // Show the controls
         } else {
             alert("Incorrect password.");
         }
@@ -44,17 +45,21 @@ document.addEventListener('DOMContentLoaded', () => {
 joinQueueBtn.addEventListener('click', () => {
     const name = studentNameInput.value.trim();
     if (name) {
-        // Ask for notification permission on the first interaction
         if (Notification.permission !== "granted") {
             Notification.requestPermission();
         }
         sessionStorage.setItem('currentUserName', name);
+        // Push data to Firebase with error handling
         queueRef.push({
             name: name,
             status: 'waiting',
             timestamp: firebase.database.ServerValue.TIMESTAMP
-        }).catch(error => console.error("Error joining queue: ", error));
-        studentNameInput.value = '';
+        }).then(() => {
+            studentNameInput.value = ''; // Clear input on success
+        }).catch(error => {
+            console.error("Firebase write error: ", error);
+            alert("Error: Could not join the queue. The database may be locked or misconfigured. Please contact the administrator.");
+        });
     } else {
         alert('Please enter your name.');
     }
@@ -103,8 +108,8 @@ queueRef.orderByChild('timestamp').on('value', snapshot => {
         if (student.status === 'waiting') waitingCount++;
         if (student.status === 'called') calledCount++;
 
-        // Check for notification: if student exists now but didn't before, or status changed to 'called'
         const previousStudentState = previousQueueState[key];
+        // Send notification only when status changes to 'called'
         if (currentUserName === student.name && student.status === 'called' && (!previousStudentState || previousStudentState.status !== 'called')) {
             new Notification("It's your turn!", { body: `Hi ${student.name}, the advisor is ready for you.` });
         }
@@ -127,14 +132,14 @@ queueRef.orderByChild('timestamp').on('value', snapshot => {
         callNextBtn.disabled = waitingCount === 0;
         clearFinishedBtn.disabled = calledCount === 0;
     }
-
-    previousQueueState = currentQueueState; // Update state for next comparison
+    previousQueueState = currentQueueState; // Update state for the next comparison
 });
 
 // --- Live Timers Update ---
 setInterval(() => {
     document.querySelectorAll('.queue-item').forEach(item => {
         const timestamp = parseInt(item.dataset.timestamp);
+        if (isNaN(timestamp)) return; // Prevents error before timestamp is loaded
         const waitingTime = Math.floor((Date.now() - timestamp) / 1000);
         const minutes = Math.floor(waitingTime / 60);
         const seconds = waitingTime % 60;
