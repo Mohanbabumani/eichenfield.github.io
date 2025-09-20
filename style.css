@@ -1,6 +1,7 @@
 :root {
     --primary-color: #6a11cb;
     --secondary-color: #2575fc;
+    --danger-color: #e74c3c;
     --card-bg: rgba(255, 255, 255, 0.2);
     --text-color: #ffffff;
     --text-dark: #f0f0f0;
@@ -72,7 +73,6 @@ input {
     font-family: 'Poppins', sans-serif;
     background-color: rgba(255, 255, 255, 0.1);
     color: var(--text-color);
-    transition: background-color 0.3s;
 }
 input::placeholder { color: var(--text-dark); }
 input:focus {
@@ -100,6 +100,14 @@ button:disabled {
     background: rgba(255, 255, 255, 0.1);
     cursor: not-allowed;
     color: rgba(255, 255, 255, 0.5);
+    transform: none;
+}
+/* NEW: Style for the clear button */
+.btn-danger {
+    background: var(--danger-color);
+}
+.btn-danger:hover {
+    background: #c0392b;
 }
 
 .queue-item {
@@ -111,17 +119,9 @@ button:disabled {
     animation: fadeIn 0.5s ease-out;
 }
 .queue-item:last-child { border: none; }
-.queue-item-info {
-    display: flex;
-    flex-direction: column;
-}
+.queue-item-info { display: flex; flex-direction: column; }
 .queue-item .timer { font-size: 0.8em; color: var(--text-dark); }
-.status {
-    font-weight: 500;
-    padding: 5px 12px;
-    border-radius: 16px;
-    font-size: 0.8em;
-}
+.status { font-weight: 500; padding: 5px 12px; border-radius: 16px; font-size: 0.8em; }
 .status-waiting { background-color: rgba(0, 0, 0, 0.1); }
 .status-called { color: #1a1a1a; background-color: var(--success-color); }
 
@@ -133,16 +133,11 @@ button:disabled {
     background-color: rgba(0, 0, 0, 0.1);
     border-radius: 8px;
 }
-.remove-btn {
-    background: none;
-    border: none;
-    color: #ffcdd2;
-    cursor: pointer;
-    margin-left: 15px;
-    font-size: 1em;
-    transition: color 0.3s;
+/* NEW: Layout for advisor buttons */
+.advisor-buttons {
+    display: flex;
+    gap: 15px;
 }
-.remove-btn:hover { color: #ef5350; }
 
 .loader {
     width: 40px;
@@ -153,41 +148,6 @@ button:disabled {
     margin: 20px auto;
     animation: spin 1s linear infinite;
 }
-
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-.modal-content {
-    background: #333;
-    color: #fff;
-    padding: 30px;
-    border-radius: 10px;
-    width: 90%;
-    max-width: 400px;
-    text-align: center;
-    transform: scale(0.9);
-    transition: transform 0.3s ease;
-}
-.modal-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 20px;
-}
-.modal-buttons button { width: 120px; }
-#modal-cancel-btn { background-color: rgba(255, 255, 255, 0.1); }
-#modal-input { margin-top: 15px; }
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
