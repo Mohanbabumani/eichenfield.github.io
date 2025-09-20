@@ -133,7 +133,7 @@ button:disabled {
     background-color: rgba(0, 0, 0, 0.1);
     border-radius: 8px;
 }
-/* NEW: Layout for advisor buttons */
+/* NEW: Layout for advisor buttons. */
 .advisor-buttons {
     display: flex;
     gap: 15px;
