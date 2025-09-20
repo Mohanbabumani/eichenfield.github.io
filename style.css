@@ -102,7 +102,6 @@ button:disabled {
     color: rgba(255, 255, 255, 0.5);
     transform: none;
 }
-/* NEW: Style for the clear button */
 .btn-danger {
     background: var(--danger-color);
 }
@@ -125,6 +124,9 @@ button:disabled {
 .status-waiting { background-color: rgba(0, 0, 0, 0.1); }
 .status-called { color: #1a1a1a; background-color: var(--success-color); }
 
+.advisor-controls {
+    display: none; /* CRITICAL FIX: Hide controls by default */
+}
 .advisor-controls #advisor-status {
     text-align: center;
     font-weight: 500;
@@ -133,7 +135,6 @@ button:disabled {
     background-color: rgba(0, 0, 0, 0.1);
     border-radius: 8px;
 }
-/* NEW: Layout for advisor buttons. */
 .advisor-buttons {
     display: flex;
     gap: 15px;
